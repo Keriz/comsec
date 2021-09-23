@@ -1,9 +1,8 @@
-#include <immintrin.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/mman.h>
 #include <time.h>
+#include <sys/mman.h>
 
 #define SUPERPAGE (1 << 30)
 #define POOL_SIZE 100000
@@ -53,11 +52,6 @@ time_access(char *addr1, char *addr2) {
 	char a = *addr1;
 	char b = *addr2;
 
-	/* for (int i = 0; i++; i < 1000000) {
-	    char c = rand() % 6;
-	    printf("%i\n", b);
-	}
- */
 	asm volatile("RDTSCP\n\t"
 		     "mov %%edx, %0\n\t"
 		     "mov %%eax, %1\n\t"
@@ -74,16 +68,9 @@ time_access(char *addr1, char *addr2) {
 	t1 = (((uint64_t)cycles_high1 << 32) | (uint64_t)cycles_low1);
 
 	times[r] = t1 - t0;
-
-	/*   _mm_mfence();
-	_mm_clflush(addr1);
-	_mm_clflush(addr2);
-	_mm_mfence(); */
     }
 
-    uint64_t time = median(times);
-
-    return time;
+    return median(times);
 }
 
 int main(int argc, char *argv) {
