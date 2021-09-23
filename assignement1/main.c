@@ -7,7 +7,6 @@
 
 #define SUPERPAGE (1 << 30)
 #define POOL_SIZE 100000
-#define RAND_MAX SUPERPAGE
 #define ROUNDS 5
 
 void swap(uint64_t *p, uint64_t *q) {
