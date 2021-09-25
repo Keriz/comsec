@@ -1,20 +1,18 @@
 CC=gcc 
 FILES=main.c
 TIMELIMIT=20:00
-HOST1=ee-tik-cn001
-HOST2=ee-tik-cn002
-HOST3=ee-tik-cn003
+
+HOST1=ee-tik-cn002
+HOST2=ee-tik-cn003
+HOST3=ee-tik-cn004
 
 main:
 # compile the program on the head node
-	$(CC) -Werror $(FILES) -o main
+	$(CC) -Og $(FILES) -o main
 
-run: clean main	
+run: clean main	 
 	cp main /data/${USER}/main
-
-# run program on cluster node
-    srun -t $(TIMELIMIT) /data/${USER}/main > output.csv
-
+	srun -t $(TIMELIMIT) /data/${USER}/main -t 100
 
 run_clusters: clean main	
 	cp main /data/${USER}/main
@@ -24,7 +22,7 @@ run_clusters: clean main
 	srun -t $(TIMELIMIT) -w $(HOST2) /data/${USER}/main > $(HOST2).csv
 	srun -t $(TIMELIMIT) -w $(HOST3) /data/${USER}/main > $(HOST3).csv
 
-debug: main
+debug: clean main
 	cp main /data/${USER}/main
 	cp dataplot.py /data/${USER}/dataplot.py
 # opens an interactive bash session on the remote node
