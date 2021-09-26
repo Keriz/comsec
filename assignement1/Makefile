@@ -6,6 +6,14 @@ HOST1=ee-tik-cn005
 HOST2=ee-tik-cn008
 HOST3=ee-tik-cn009
 
+student: clean_student
+	$(CC) -Og $(FILES) -o 16-821-837
+
+student_run: clean_student student
+	cp 16-821-837 /data/${USER}/16-821-837
+# srun -t $(TIMELIMIT) /data/${USER}/main -t 100
+	srun -t $(TIMELIMIT) -w $(HOST1) /data/${USER}/16-821-837 
+
 main:
 # compile the program on the head node
 	$(CC) -Og $(FILES) -o main
@@ -13,7 +21,7 @@ main:
 run: clean main	 
 	cp main /data/${USER}/main
 # srun -t $(TIMELIMIT) /data/${USER}/main -t 100
-		srun -t $(TIMELIMIT) -w $(HOST1) /data/${USER}/main 
+	srun -t $(TIMELIMIT) -w $(HOST1) /data/${USER}/main 
 
 run_clusters: clean main	
 	cp main /data/${USER}/main
@@ -33,3 +41,5 @@ all: clean run
 .PHONY: clean
 clean:
 	rm -rf main
+clean_student:
+	rm -rf 16-821-837
