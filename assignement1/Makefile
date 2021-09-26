@@ -2,9 +2,9 @@ CC=gcc
 FILES=main.c
 TIMELIMIT=20:00
 
-HOST1=ee-tik-cn002
-HOST2=ee-tik-cn003
-HOST3=ee-tik-cn004
+HOST1=ee-tik-cn005
+HOST2=ee-tik-cn008
+HOST3=ee-tik-cn009
 
 main:
 # compile the program on the head node
@@ -12,7 +12,8 @@ main:
 
 run: clean main	 
 	cp main /data/${USER}/main
-	srun -t $(TIMELIMIT) /data/${USER}/main -t 100
+# srun -t $(TIMELIMIT) /data/${USER}/main -t 100
+		srun -t $(TIMELIMIT) -w $(HOST1) /data/${USER}/main 
 
 run_clusters: clean main	
 	cp main /data/${USER}/main
