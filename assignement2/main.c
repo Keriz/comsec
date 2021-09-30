@@ -124,8 +124,8 @@ char *switch_bank(char *addr, const uint8_t bankFuncValues[], const uint8_t nbFu
 				isInDiffBank = 0;
 			} else {
 				if (__builtin_popcountll(bankFunctions[i] & (1 << bitSet)) > 0) {
-					newAddr =
-					    (uint64_t)newAddr ^ (bankFunctions[i] ^ (1 << bitSet));
+					newAddr = (char *)((uint64_t)newAddr ^
+					                   (bankFunctions[i] ^ (1 << bitSet)));
 				}
 				isInDiffBank = 1;
 				break;
@@ -159,10 +159,10 @@ int main(int argc, char **argv) {
 	uint32_t significantBits           = 0;
 	uint64_t thresholdTimes[POOL_SIZE] = {0};
 
-	while ((c = getopt(argc, argv, "bt:")) != -1) {
+	while ((c = getopt(argc, argv, "bfm")) != -1) {
 		switch (c) {
 			case 'b':
-				significantBitsFlag = 0;
+				significantBitsFlag = 1;
 				break;
 			case 'f':
 				bankAddressingFlag = 1;
@@ -175,8 +175,11 @@ int main(int argc, char **argv) {
 
 	while (totalAddrRemoved < (POOL_SIZE - MIN_BANK_SUBSET_SIZE) &&
 	       nbBanks < MAX_NUMBER_BANKS) {
-		poolSubsetSize                        = 0;
-		char *base                            = pool[rand() % POOL_SIZE];
+		poolSubsetSize = 0;
+		char *base     = pool[rand() % POOL_SIZE];
+		while (!base)
+			base = pool[rand() % POOL_SIZE];
+
 		poolSubset[poolSubsetSize++][nbBanks] = base;
 
 		if (thresholdNotComputed) {
