@@ -56,7 +56,7 @@ uint64_t time_access(const volatile char *addr1, const volatile char *addr2) {
 		*addr1;
 		*addr2;
 
-		asm volatile("mfence\n\t");
+		asm volatile("lfence\n\t");
 		asm volatile("RDTSCP\n\t"
 		             "mov %%edx, %0\n\t"
 		             "mov %%eax, %1\n\t"
@@ -101,7 +101,7 @@ uint16_t round_power_2(uint16_t v) {
 /* inline uint32_t log2(const uint32_t x) {
         return (uint32_t)ceil((ln(x) / ln(2)));
 } */
-void *change_bit(const char *addr, const char bit) {
+void *change_bit(const char *addr, const uint8_t bit) {
 	return (void *)((uintptr_t)addr ^ (uintptr_t)(1 << bit));
 }
 
@@ -109,31 +109,38 @@ static inline uint8_t self_xor(uint64_t v) { return __builtin_popcountll(v) % 2;
 
 void get_funcs_values(const char *addr, char *values, const uint8_t nbFunc) {
 	for (uint8_t i = 0; i < nbFunc; i++)
-		values[i] = self_xor((uint64_t)poolSubset[i][0] & bankFunctions[i]);
+		values[i] = self_xor((uint64_t)poolSubset[0][0] & bankFunctions[i]);
 }
 
 char *switch_bank(char *addr, const uint8_t bankFuncValues[], const uint8_t nbFunc,
                   uint8_t bitSet) {
-	char *newAddr        = addr;
-	uint8_t isInDiffBank = 1;
+	char *newAddr               = addr;
+	uint8_t allFunctionsCorrect = 1;
 
-	while (isInDiffBank) {
-		for (uint8_t i = 0; i < nbFunc; i++) {
-			if (bankFuncValues[i] == self_xor((uint64_t)newAddr & bankFunctions[i])) {
-				continue;
-				isInDiffBank = 0;
-			} else {
-				if (__builtin_popcountll(bankFunctions[i] & (1 << bitSet)) > 0) {
-					newAddr = (char *)((uint64_t)newAddr ^
-					                   (bankFunctions[i] ^ (1 << bitSet)));
-				}
-				isInDiffBank = 1;
+	for (size_t bit = 0; bit < SUPERPAGE_SIZE; bit++) {
+		allFunctionsCorrect = 1;
+		uint32_t d = 0;
+
+		//flip next bit
+		bit     = (bit == bitSet) ? (++bit) : bit;
+		newAddr = change_bit(addr, bit);
+
+		for (size_t i = 0; i < nbFunc; i++){
+			d = bankFunctions[i];
+
+			if (bankFuncValues[i] != self_xor((uint64_t)newAddr & (uint64_t)bankFunctions[i])){
+				allFunctionsCorrect = 0;
 				break;
 			}
 		}
-	}
 
-	return newAddr;
+		if (allFunctionsCorrect){
+			printf("bank switched, bit changed: %d and %d,mask %x\n", bit, bitSet, d);
+			return newAddr;
+		}
+	}
+	printf("bank not switched, bitInitiallyFlipped: %d\n", bitSet);
+	return addr;
 }
 
 int main(int argc, char **argv) {
@@ -254,29 +261,36 @@ int main(int argc, char **argv) {
 	}
 	if (significantBitsFlag) printf("%08x\n", significantBits);
 
-	if (bankAddressingFlag) {
-		printf("%x\n", nbBankFunctions);
-		for (int i = 0; i < nbBankFunctions; i++)
-			printf("%x\n", bankFunctions[i]);
-	}
+	/* f (bankAddressingFlag) { */
+	printf("%x\n", nbBankFunctions);
+	for (int i = 0; i < nbBankFunctions; i++)
+		printf("%x\n", bankFunctions[i]);
+	/* } */
 
 	if (rowMaskFlag) {
-		/* uint32_t rowMaskBits = 0;
-		char *a0             = poolSubset[0][0]; // protection agaisnt null values needed
+		uint32_t rowMaskBits              = 0;
+		char *a0                          = poolSubset[0][0]; // protection agaisnt null values needed
 		uint8_t a0_bank[MAX_NUMBER_BANKS] = {0};
 
-		get_funcs_values(a0, a0_bank, nbBankFunctions); */
-		/*
-		                for (uint8_t bit = 0; bit < SUPERPAGE_SIZE; bit++) {
-		                        char *tempA0  = change_bit(a0, bit);
-		                        char *newA0   = switch_bank(tempA0, a0_bank,
-		   nbBankFunctions, bit); uint64_t time = time_access(a0, newA0); if (time >
-		   thresholdValue) { uint32_t highestSetBit = (1 << __builtin_clzll((uint64_t)a0 ^
-		   (uint64_t)newA0)); rowMaskBits |= 1 << highestSetBit;
-		                        }
-		                } */
+		get_funcs_values(a0, a0_bank, nbBankFunctions);
+
+		for (uint8_t bit = 0; bit < SUPERPAGE_SIZE; bit++) {
+			char *tempA0  = change_bit(a0, bit);
+			char *newA0   = switch_bank(tempA0, a0_bank,
+                                                  nbBankFunctions, bit);
+			uint64_t time = time_access(a0, newA0);
+			//printf("time: %ju, threshold %ju, bit %d\n", time, thresholdValue, bit);
+			if (time >
+			    thresholdValue) {
+				uint32_t highestSetBit = (1 << (31 - __builtin_clzll((uint64_t)a0 ^
+				                                                    (uint64_t)newA0)));
+				printf("highestVal: %lx, highSetBit: %u\n", (uint64_t)a0 ^ (uint64_t)newA0, 31 - __builtin_clz(highestSetBit));
+				rowMaskBits |= highestSetBit;
+				//printf("%x\n", rowMaskBits);
+				//fflush(stdout);
+			}
+		}
+		printf("%x\n", rowMaskBits);
 	}
 	fflush(stdout);
-
-	// printf("%d\n", log2(round_power_2(nbBanks)));
 }

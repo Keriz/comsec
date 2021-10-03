@@ -1,14 +1,14 @@
 CC=gcc 
 FILES=main.c
 TIMELIMIT=20:00
-OPTIMIZATIONLEVEL=g
+OPTIMIZATIONLEVEL=g3
 
 HOST1=ee-tik-cn007
 HOST2=ee-tik-cn008
 HOST3=ee-tik-cn009
 
 student: clean_student
-	$(CC) -$(OPTIMIZATIONLEVEL) $(FILES) -o 16-821-837
+	$(CC) -$(OPTIMIZATIONLEVEL) $(FILES) -lm -o 16-821-837 
 
 student_run: clean_student student
 	cp 16-821-837 /data/${USER}/16-821-837
@@ -17,12 +17,12 @@ student_run: clean_student student
 
 main:
 # compile the program on the head node
-	$(CC) -$(OPTIMIZATIONLEVEL) $(FILES) -o main
+	$(CC) -$(OPTIMIZATIONLEVEL) $(FILES) -lm -o main
 
 run: clean main	 
 	cp main /data/${USER}/main
 # srun -t $(TIMELIMIT) /data/${USER}/main -t 100
-	srun -t $(TIMELIMIT) -w $(HOST1) /data/${USER}/main -b
+	srun -t $(TIMELIMIT) -w $(HOST1) /data/${USER}/main -m
 
 run_clusters: clean main	
 	cp main /data/${USER}/main
@@ -34,8 +34,9 @@ run_clusters: clean main
 
 debug: clean main
 	cp main /data/${USER}/main
+	cp main.c /data/${USER}/main.c
 # opens an interactive bash session on the remote node
-	srun -t $(TIMELIMIT) --pty bash -i
+	srun -t $(TIMELIMIT)-w $(HOST1) --pty bash -i
 
 all: clean run
 .PHONY: clean
