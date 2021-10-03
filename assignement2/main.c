@@ -119,27 +119,19 @@ char *switch_bank(char *addr, const uint8_t bankFuncValues[], const uint8_t nbFu
 
 	for (size_t bit = 0; bit < SUPERPAGE_SIZE; bit++) {
 		allFunctionsCorrect = 1;
-		uint32_t d = 0;
-
 		//flip next bit
 		bit     = (bit == bitSet) ? (++bit) : bit;
 		newAddr = change_bit(addr, bit);
 
-		for (size_t i = 0; i < nbFunc; i++){
-			d = bankFunctions[i];
-
-			if (bankFuncValues[i] != self_xor((uint64_t)newAddr & (uint64_t)bankFunctions[i])){
+		for (size_t i = 0; i < nbFunc; i++) {
+			if (bankFuncValues[i] != self_xor((uint64_t)newAddr & (uint64_t)bankFunctions[i])) {
 				allFunctionsCorrect = 0;
 				break;
 			}
 		}
 
-		if (allFunctionsCorrect){
-			printf("bank switched, bit changed: %d and %d,mask %x\n", bit, bitSet, d);
-			return newAddr;
-		}
+		if (allFunctionsCorrect) return newAddr;
 	}
-	printf("bank not switched, bitInitiallyFlipped: %d\n", bitSet);
 	return addr;
 }
 
@@ -259,13 +251,13 @@ int main(int argc, char **argv) {
 		// popcount counts the number of 1-bits in x
 		while (__builtin_popcountll(mask) != 2);
 	}
-	if (significantBitsFlag) printf("%08x\n", significantBits);
+	if (significantBitsFlag) printf("%x\n", significantBits);
 
-	/* f (bankAddressingFlag) { */
-	printf("%x\n", nbBankFunctions);
-	for (int i = 0; i < nbBankFunctions; i++)
-		printf("%x\n", bankFunctions[i]);
-	/* } */
+	if (bankAddressingFlag) {
+		printf("%x\n", nbBankFunctions);
+		for (int i = 0; i < nbBankFunctions; i++)
+			printf("%x\n", bankFunctions[i]);
+	}
 
 	if (rowMaskFlag) {
 		uint32_t rowMaskBits              = 0;
@@ -279,15 +271,11 @@ int main(int argc, char **argv) {
 			char *newA0   = switch_bank(tempA0, a0_bank,
                                                   nbBankFunctions, bit);
 			uint64_t time = time_access(a0, newA0);
-			//printf("time: %ju, threshold %ju, bit %d\n", time, thresholdValue, bit);
 			if (time >
 			    thresholdValue) {
 				uint32_t highestSetBit = (1 << (31 - __builtin_clzll((uint64_t)a0 ^
-				                                                    (uint64_t)newA0)));
-				printf("highestVal: %lx, highSetBit: %u\n", (uint64_t)a0 ^ (uint64_t)newA0, 31 - __builtin_clz(highestSetBit));
+				                                                     (uint64_t)newA0)));
 				rowMaskBits |= highestSetBit;
-				//printf("%x\n", rowMaskBits);
-				//fflush(stdout);
 			}
 		}
 		printf("%x\n", rowMaskBits);
