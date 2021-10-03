@@ -1,0 +1,9 @@
+Task 3:
+ee-tik-cn005: 402 16
+ee-tik-cn008: 385 32
+ee-tik-cn009: 417 16
+
+Regarding the automatic threshold detection, I decided to take the median over the access time from the first base address.
+This should give me the average time in the row hits area as they are the majority of the measurements.
+To this, I add half of the difference between the maximum access time and the median.
+Although this is not the most robust method, this gives me more than acceptable results and the correct bank numbers.
