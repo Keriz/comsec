@@ -3,7 +3,7 @@ FILES=main.c
 TIMELIMIT=20:00
 OPTIMIZATIONLEVEL=g3
 
-HOST1=ee-tik-cn007
+HOST1=ee-tik-cn002
 HOST2=ee-tik-cn008
 HOST3=ee-tik-cn009
 
@@ -13,7 +13,7 @@ student: clean_student
 student_run: clean_student student
 	cp 16-821-837 /data/${USER}/16-821-837
 # srun -t $(TIMELIMIT) /data/${USER}/main -t 100
-	srun -t $(TIMELIMIT) -w $(HOST1) /data/${USER}/16-821-837 
+	srun -t $(TIMELIMIT) -w $(HOST1) /data/${USER}/16-821-837 -b
 
 main:
 # compile the program on the head node
