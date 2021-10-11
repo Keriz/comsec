@@ -1,0 +1,15 @@
+# REPORT GUILLAUME THIVOLET 16-821-837
+
+(Disclaimer: I modified the original key in krypto.c)
+
+On this assignement, I struggled to get the EVICT+RELOAD working. I tried multiple strategies, the first one being to create evictions sets by regrouping pages, as taught in the lecture. However, I noticed that this was computing-intensive and each set took more than 10s to be found, with a pool size of already 100 pages. 
+
+I wasn't sure that I understood the direction I was going in, and after reading the primer papers on the EVICT+RELOAD attack I decided to do things in a more straightforward way: generate N (100 in my case) pages using mmap, and access each of them one after the other. 
+
+With a pool big enough, I would be sure that I would evict the cache. After battling with the gcc optimizations and the thresold needing to be computed differently, I managed to get the same results as with clflushopt().
+
+I left the code at the reader's disposal (function build_eviction_sets). My solution is not ideal, but it leaks the secret. If you have any time and clue at what I might have done wrong, I would appreciate if you let me know!
+
+FLUSH+RELOAD success rate on ee-tik-cn006: 80/80 bytes
+EVICT+RELOAD success rate on ee-tik-cn006: 72/80 bytes
+HARDENED+(FLUSH+RELOAD) success rate on ee-tik-cn007: 67/80 bytes
