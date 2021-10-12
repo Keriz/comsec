@@ -1,11 +1,10 @@
 assignement1/main
-assignement1/16-821-837
-assignement2/16-821-837
 assignement2/main
 assignement1/ee-tik-cn*.png
 assignement2/assigment2_gthi.zip
-assignement3/16-821-837
 assignement3/libkrypto.so
 .vscode/settings.json
 assignement3/obj/*
-assignement3/16-821-837.zip
+assignement4/*.d
+assignement4/*.o
+16-821-837*
