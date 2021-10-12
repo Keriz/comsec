@@ -1,11 +1,13 @@
 #!/bin/bash
 
-set -e
-make clean all >/dev/null
+set -echo
 
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NORMAL='\033[0m'
 STUDENTID=16-821-837
 
-if [ "$STUDENTID" = "16-821-837" ]
+if [ "$STUDENTID" = "99-999-99" ]
 then
     echo "Please update your student ID in this file"
     exit 0
@@ -15,9 +17,9 @@ if [ "$N" = "" ]
 then N=100
 fi
 
-MELTDOWN_SEGV=${STUDENTID}-meltdown_segv
-MELTDOWN_TSX=${STUDENTID}-meltdown_tsx
-SPECTRE=${STUDENTID}-spectre
+MELTDOWN_SEGV=/data/gthivolet/${STUDENTID}-meltdown_segv
+MELTDOWN_TSX=/data/gthivolet/${STUDENTID}-meltdown_tsx
+SPECTRE=/data/gthivolet/${STUDENTID}-spectre
 
 function newsecret()
 {
@@ -67,12 +69,12 @@ for bin in $MELTDOWN_SEGV $MELTDOWN_TSX $SPECTRE
 do
     echo "**** TESTING $bin ****"
     newsecret
-    ./$bin > out
+    $bin > out
     printf "YOUR BINARY OUTPUT >>>>>>>>\n"
     cat out
     printf "<<<<<<<<\n"
     printf "TEST RESULT: "
-    grep -q $secret out && echo "PASS" || echo "FAIL"
+    grep -q $secret out && echo -e "${GREEN}PASS${NORMAL}" || echo -e "${RED}FAIL${NORMAL}"
     echo "====================================="
     echo ""
     rm -f out
