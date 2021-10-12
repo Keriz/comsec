@@ -1,14 +1,23 @@
 CFLAGS += -O3 -mrtm
 CFLAGS += -Iinclude
 CFLAGS += -D_GNU_SOURCE=1
+NODE=ee-tik-cn007
+TIMELIMIT=20:00
 
 LDFLAGS += -no-pie
 
 #your student id goes here
 
-STUDENTID=99-999-999
+STUDENTID=16-821-837
 
 all: check $(STUDENTID)-meltdown_segv $(STUDENTID)-meltdown_tsx $(STUDENTID)-spectre
+
+run: clean all
+	cp ${STUDENTID}-meltdown_segv /data/${USER}/${STUDENTID}-meltdown_segv
+	cp ${STUDENTID}-meltdown_tsx /data/${USER}/${STUDENTID}-meltdown_tsx
+	cp ${STUDENTID}-spectre /data/${USER}/${STUDENTID}-spectre
+	cp test.sh /data/${USER}/test.sh
+	srun -t $(TIMELIMIT) -w $(NODE) bash -c '. /data/gthivolet/test.sh'
 
 check:
 ifndef STUDENTID
