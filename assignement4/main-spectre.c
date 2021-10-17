@@ -30,7 +30,7 @@ wom_get_address(int fd) {
 #define NB_MEASUREMENTS 30
 #define PAGE_SIZE 4096
 #define SIZE_SECRET 32 //bytes
-#define BRANCH_TRAINS 8
+
 char *flush_reload;
 uint64_t results[256] = {0};
 uint64_t threshold    = 0;
