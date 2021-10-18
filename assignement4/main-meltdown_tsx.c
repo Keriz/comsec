@@ -5,8 +5,6 @@
 #include <string.h>
 
 #include <fcntl.h>
-#include <setjmp.h>
-#include <signal.h>
 #include <unistd.h>
 
 #include <sys/ioctl.h>
@@ -32,7 +30,6 @@ wom_get_address(int fd) {
 #define CACHELINE_SIZE 4096
 #define SIZE_SECRET 32 //bytes
 
-jmp_buf jbuf;
 char *flush_reload;
 uint64_t results[256] = {0};
 uint64_t threshold    = 0;
@@ -115,7 +112,7 @@ int main(int argc, char *argv[]) {
 
 	threshold = threshold_detection();
 
-	printf("threshold: %d\n", threshold);
+	//printf("threshold: %d\n", threshold);
 
 	flush_reload = (char *)mmap(NULL, 256 * CACHELINE_SIZE, PROT_READ | PROT_WRITE,
 	                            MAP_SHARED | MAP_ANON, -1, 0);
