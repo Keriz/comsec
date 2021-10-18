@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -echo
+set -e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -17,9 +17,9 @@ if [ "$N" = "" ]
 then N=100
 fi
 
-MELTDOWN_SEGV=/data/gthivolet/${STUDENTID}-meltdown_segv
-MELTDOWN_TSX=/data/gthivolet/${STUDENTID}-meltdown_tsx
-SPECTRE=/data/gthivolet/${STUDENTID}-spectre
+MELTDOWN_SEGV=${STUDENTID}-meltdown_segv
+MELTDOWN_TSX=${STUDENTID}-meltdown_tsx
+SPECTRE=${STUDENTID}-spectre
 
 function newsecret()
 {
@@ -30,7 +30,7 @@ function newsecret()
         exit 1
     fi
     echo "GENERATED SECRET: $secret" >&2
-    echo $secret >/dev/wom
+    echo $secret > /dev/wom
 }
 
 if [ "$1" = "batch" ]
@@ -49,7 +49,7 @@ then
       for x in `seq 1 $N`
       do
           rm -f out
-          ./$bin >out 2>>errlog
+          /$bin >out 2>>errlog
           grep -q $secret out && echo -n "." || echo -n "?"
           cat out >>log
       done
@@ -69,7 +69,7 @@ for bin in $MELTDOWN_SEGV $MELTDOWN_TSX $SPECTRE
 do
     echo "**** TESTING $bin ****"
     newsecret
-    $bin > out
+    ./$bin > out
     printf "YOUR BINARY OUTPUT >>>>>>>>\n"
     cat out
     printf "<<<<<<<<\n"
