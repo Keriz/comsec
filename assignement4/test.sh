@@ -49,7 +49,7 @@ then
       for x in `seq 1 $N`
       do
           rm -f out
-          /$bin >out 2>>errlog
+          ./$bin >out 2>>errlog
           grep -q $secret out && echo -n "." || echo -n "?"
           cat out >>log
       done
