@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 
 	threshold = threshold_detection();
 
-	printf("threshold: %d\n", threshold);
+	//printf("threshold: %d\n", threshold);
 
 	flush_reload = (char *)mmap(NULL, 256 * CACHELINE_SIZE, PROT_READ | PROT_WRITE,
 	                            MAP_SHARED | MAP_ANON, -1, 0);
