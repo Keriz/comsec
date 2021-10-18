@@ -27,7 +27,7 @@ wom_get_address(int fd) {
 	return addr;
 }
 
-#define NB_MEASUREMENTS 30
+#define NB_MEASUREMENTS 3
 #define PAGE_SIZE 4096
 #define SIZE_SECRET 32 //bytes
 
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
 
 	threshold = threshold_detection();
 
-	printf("threshold: %d\n", threshold);
+	//printf("threshold: %d\n", threshold);
 
 	flush_reload = (char *)mmap(NULL, 256 * PAGE_SIZE, PROT_READ | PROT_WRITE,
 	                            MAP_SHARED | MAP_ANON, -1, 0);
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 			round++;
 			*condition = 1;
 
-			for (size_t j = 0; j < 500; j++) {
+			for (size_t j = 0; j < 40; j++) {
 				spectre_func(&tmp);
 			}
 
