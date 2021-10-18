@@ -1,40 +1,7 @@
-0. Change STUDENTID in the Makefile and test.sh
+I created a script called plot.sh that gives me the accuracy (comparing the secret byte-by-byte for N=20 runs) and the execution time averaged over N runs.
 
-1. The wom/ directory contains a kernel module that maps a buffer in memory. The
-   goal of the assignment is to leak the contents of this buffer using the Meltdown
-   technique. The module is already loaded in kernel memory in all the cluster nodes.
-   You can check that by running: 
-   
-   $ lsmod | grep wom 
+I then call this script after changing the parameter in the given task program, and enter my results in the arrays of plot.py to generate the graphs.
 
-3. Now you can build and run the template for the lab assignment in lab3.
-   (in the lab3/ dir)
-      4a. make
-      4b.  $ ./STUDENTID-meltdown 
-           secret=0xffff8801e318b000
-   Your tasks are to leak the content of the buffer pointed to by 'secret' using
-   the following Meltdown techniques:
+For the task3 plot, I am running multiple rounds as well. Instead of changing the rounds, I found it to be more interesting to change the number of times the training function is called with a given number of rounds (R=2).
 
-   Task #1/#2: Leak the generated secret using Meltdown with SEGV or TSX
-   Task #3: Leak the generated secret using Meltdown in a speculative branch
-
-4. To test your assignment, we will change the contents of this buffer and see
-   if your program can leak it correctly. Assume we want to leak the first 32
-   bytes of the buffer and that they are all hex digits. Print a newline yourself.
-
-5. If you run:
-   
-   $ ./test.sh 
-   
-   The script executes one time your implementation of STUDENTID-meltdown_segv, 
-   STUDENTID-meltdown_tsx and STUDENTID-spectre and compares the leaked secret with
-   the generated one. The script tells you at the end of each test whether your
-   corrisponding implementation is a PASS or FAIL.
-
-5. If you run:
-   
-   $ ./test.sh batch 
-   
-   The script executes 100 times your implementation of STUDENTID-meltdown_segv, 
-   STUDENTID-meltdown_tsx and STUDENTID-spectre and tells you the success rate of 
-   each binary. 
+I struggled a lot to find that we needed a read(fd, XX, bytes) in the attacks to be able to read anything from the secret. 
