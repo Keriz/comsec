@@ -1,7 +1,7 @@
-CFLAGS += -O3 -mrtm
+CFLAGS += -O1 -mrtm
 CFLAGS += -Iinclude
 CFLAGS += -D_GNU_SOURCE=1
-NODE=ee-tik-cn007
+NODE=ee-tik-cn006
 TIMELIMIT=20:00
 
 LDFLAGS += -no-pie
@@ -17,7 +17,8 @@ run: clean all
 	cp ${STUDENTID}-meltdown_tsx /data/${USER}/${STUDENTID}-meltdown_tsx
 	cp ${STUDENTID}-spectre /data/${USER}/${STUDENTID}-spectre
 	cp test.sh /data/${USER}/test.sh
-	srun -t $(TIMELIMIT) -w $(NODE) bash -c '. /data/gthivolet/test.sh'
+	cp plot.sh /data/${USER}/plot.sh
+	srun -t $(TIMELIMIT) -w $(NODE) bash -c '. /data/gthivolet/plot.sh'
 
 check:
 ifndef STUDENTID
